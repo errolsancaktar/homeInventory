@@ -2,12 +2,33 @@ from PIL import Image, ImageDraw, ImageFont, ImageColor
 from io import BytesIO
 from functools import partial
 from os.path import join, dirname
+import logging
+
+### Set up Logging ###
+
+logger = logging.getLogger('ImageManip')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+# fh = logging.FileHandler('spam.log')
+# fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+# create formatter and add it to the handlers
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+# logger.addHandler(fh)
+logger.addHandler(ch)
 
 
 def add_overlay_text(qr_in: BytesIO, text: str, font_size: int = 14) -> BytesIO:
     """
     Adds Overlay text to bytestring image coming in
     """
+    logger.debug(f"Generating Overlay Image with text: {text}")
     with Image.open(qr_in) as newImg:
         width, height = newImg.size
         draw = ImageDraw.Draw(newImg)

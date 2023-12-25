@@ -3,10 +3,29 @@ from fastapi.encoders import jsonable_encoder
 from typing import List
 import io
 import qrcode
-import logging as log
 from starlette.responses import StreamingResponse
 from models import Asset, AssetUpdate
 import image
+import logging
+
+### Set up Logging ###
+
+logger = logging.getLogger('API')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+# fh = logging.FileHandler('spam.log')
+# fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+# create formatter and add it to the handlers
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+# logger.addHandler(fh)
+logger.addHandler(ch)
 
 
 databaseName = "testdb"
@@ -29,12 +48,14 @@ def create_asset(request: Request, asset: Asset = Body(...)):
 
 @router.get("/", response_description="List all assets", response_model=List[Asset])
 def list_assets(request: Request):
+    logger.debug("Listing Assets")
     assets = list(request.app.database[databaseName].find(limit=100))
     return assets
 
 
 @router.get("/{id}", response_description="Get a single asset by id", response_model=Asset)
 def find_asset(id: str, request: Request):
+    logger.debug(f"Searching for Asset {id}")
     if (asset := request.app.database[databaseName].find_one({"_id": id})) is not None:
         return asset
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -43,6 +64,7 @@ def find_asset(id: str, request: Request):
 
 @router.put("/{id}", response_description="Update an asset", response_model=Asset)
 def update_asset(id: str, request: Request, asset: AssetUpdate = Body(...)):
+    logger.debug(f"Updating Asset {id}")
     asset = {k: v for k, v in asset.model_dump().items() if v is not None}
     if len(asset) >= 1:
         update_result = request.app.database[databaseName].update_one(
@@ -64,6 +86,7 @@ def update_asset(id: str, request: Request, asset: AssetUpdate = Body(...)):
 
 @router.delete("/{id}", response_description="Delete an asset")
 def delete_asset(id: str, request: Request, response: Response):
+    logger.debug(f"Deleting Asset {id}")
     delete_result = request.app.database[databaseName].delete_one({"_id": id})
 
     if delete_result.deleted_count == 1:
@@ -80,9 +103,9 @@ def qrcode_asset(assetId: str, request: Request):
     Generates qr code for the asset id which should take you to the asset page of the item
     """
 
-    log.debug(f"Generating QR for {assetId}")
+    logger.debug(f"Generating QR for {assetId}")
     assetUrl = request.url_for("find_asset", id=assetId)
-    log.debug(type(assetUrl))
+    logger.debug(type(assetUrl))
     qr = qrcode.QRCode(
         box_size=12,
         border=5,
