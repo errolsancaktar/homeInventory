@@ -1,0 +1,32 @@
+from PIL import Image, ImageDraw, ImageFont, ImageColor
+from io import BytesIO
+from functools import partial
+from os.path import join, dirname
+
+
+def add_overlay_text(qr_in: BytesIO, text: str, font_size: int = 14) -> BytesIO:
+    """
+    Adds Overlay text to bytestring image coming in
+    """
+    with Image.open(qr_in) as newImg:
+        width, height = newImg.size
+        draw = ImageDraw.Draw(newImg)
+        font_path = join(
+            dirname(__file__), 'font', 'Roboto-BlackItalic.ttf')
+        font = ImageFont.truetype(font_path, font_size)
+        left, top, right, bottom = font.getbbox(text)
+        fwidth = abs(right - left)
+        fheight = abs(top - bottom)
+        if fwidth > width:
+            width = fwidth + font_size
+        height += fheight
+        fullImg = Image.new(newImg.mode, (width, height), color='white')
+        fullImg.paste(newImg)
+        draw = ImageDraw.Draw(fullImg)
+        draw_text = partial(draw.text, font=font,
+                            fill=ImageColor.getcolor('black', newImg.mode))
+        print(top, bottom, left, right, width, height, fwidth)
+        draw_text(((width-fwidth)-(width-fwidth)/2,
+                  height-fheight-font_size), text)
+
+        return fullImg

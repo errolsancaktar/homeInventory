@@ -1,0 +1,8 @@
+pymongopymongo~=4.6.1
+fastapi~=0.105.0
+Flask~=3.0.0
+uvicorn~=0.25.0
+python-dotenv~=1.0.0
+python-multipart~=0.0.6
+qrcode~=7.4.2
+Pillow~=10.1.0
