@@ -1,8 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 from dotenv import dotenv_values
 from pymongo import MongoClient
 from api import router as asset_router
+import api
 import uvicorn
 import logging
 
@@ -52,7 +56,7 @@ async def lifespan(app: FastAPI):
 
 ### Define Fastapi Object ###
 app = FastAPI(lifespan=lifespan)
-
+templates = Jinja2Templates(directory="templates")
 
 ### Routes ###
 
@@ -60,11 +64,34 @@ app.include_router(asset_router, tags=["assets"], prefix="/api")
 
 
 @app.get("/")
-async def root():
-    return {"message": f"Welcome to {invName} Inventory"}
+async def root(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request, "instance_name": invName})
 
 
+@app.get("/list")
+async def list_records(request: Request):
+    assets = api.list_assets(request)
+    # for i in assets:
+    #     print(i)
+    return templates.TemplateResponse("items.html", {"request": request, "assets": assets})
+
+
+@app.get("/item/{id}")
+async def get_record(request: Request, id: str):
+    asset = api.find_asset(request=request, id=id)
+    logger.debug(asset)
+    return templates.TemplateResponse("item.html", {"request": request, "asset": asset})
+
+
+@app.get("/edit/{id}")
+async def update_record(request: Request, id: str):
+    asset = api.find_asset(request=request, id=id)
+    logger.debug(asset)
+    return templates.TemplateResponse("edit.html", {"request": request, "asset": asset})
+
+
+### Upstart ###
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host="0.0.0.0", port=8080, reload="true", debug=True)
+        host="0.0.0.0", port=8080, reload="true")

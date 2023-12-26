@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <title>{{ instance_name }} Inventory</title>
+</head>
+
+<body>
+    <div class="container mt-3">
+        <form class="form-control">
+            <div class="row">
+                <div class="col">
+                    {% if asset.name %}
+                    <div class="col">
+                        <h2>{{ asset.name }}</h2>
+
+                    </div>
+                    {% endif %}
+                    <div class="col">
+
+                        <div>{{ asset.description }}
+                            <br>
+                            <br>
+                        </div>
+
+                    </div>
+                    <div class="col">
+                        <label for="name">Building:</label>
+                        <input type="text" id="name"
+                            placeholder="{% if asset.main_location %}{{ asset.main_location }}{% else %}{{ asset.site }}{% endif %}"
+                            readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Room:</label>
+                        <input type="text" id="name"
+                            placeholder="{% if asset.specific_location %}{{ asset.specific_location }}{% else %}{{ asset.location }}{% endif %}"
+                            readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Purchase Date:</label>
+                        <input type="text" id="name" placeholder="{{ asset.purchaseDate }}" readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Original Cost:</label>
+                        <input type="text" id="name" placeholder="${{ asset.originalCost }}" readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Manufacturer:</label>
+                        <input type="text" id="name" placeholder="{{ asset.manufacturer }}" readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Model:</label>
+                        <input type="text" id="name" placeholder="{{ asset.model }}" readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Serial:</label>
+                        <input type="text" id="name" placeholder="{{ asset.serial }}" readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Owner:</label>
+                        <input type="text" id="name" placeholder="{{ asset.owner }}" readonly>
+                    </div>
+                    <div class="col">
+                        <label for="name">Estimate:</label>
+                        <input type="text" id="name" placeholder="${{ asset.estimatedValueA }}" readonly>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col" style="height:25%">
+                            <img class="img-fluid" style="max-width:50%" src="/api/qr/{{ asset._id }}" align="right">
+                        </div>
+                    </div>
+                    <div class="col" style="height:25%">
+                        <div class="col">
+                        </div>
+                    </div>
+                    <div class="col" style="height:25%">
+                        <div class="col">
+                        </div>
+                    </div>
+                    <div class="col" style="height:25%">
+                        <div class="col">
+                            <a href=/edit/{{ asset._id }} class="btn btn-danger">Edit</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+    </div>
+
+    </form>
+</body>
+
+</html>
