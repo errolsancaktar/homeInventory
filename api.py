@@ -4,6 +4,7 @@ from typing import List
 import io
 import qrcode
 from starlette.responses import StreamingResponse
+from datetime import datetime
 from models import Asset, AssetUpdate
 import image
 import logging
@@ -38,7 +39,12 @@ except:
 @router.post("/", response_description="Create a new asset", status_code=status.HTTP_201_CREATED, response_model=Asset)
 def create_asset(request: Request, asset: Asset = Body(...)):
     asset = jsonable_encoder(asset)
+    ## Add Timestamp ##
+    asset['created'] = str(datetime.now())
+    asset['modified'] = str(datetime.now())
+
     new_asset = request.app.database[databaseName].insert_one(asset)
+    logger.debug(f"ID of newly created record: {new_asset.inserted_id}")
     created_asset = request.app.database[databaseName].find_one(
         {"_id": new_asset.inserted_id}
     )
@@ -62,15 +68,30 @@ def find_asset(id: str, request: Request):
                         detail=f"Asset with ID {id} not found")
 
 
+@router.get("/search/{field}/{value}", response_description="Get a single asset by id", response_model=list[Asset])
+def search_assets(value: str, field: str, request: Request):
+    logger.debug(f"Searching for {value} in {field}")
+    if (assets := list(request.app.database[databaseName].find({field: value}))) is not None:
+        if len(assets) > 0:
+            return assets
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"No Assets with {value} in {field} found")  # Change later
+
+
 @router.put("/{id}", response_description="Update an asset", response_model=Asset)
 def update_asset(id: str, request: Request, asset: AssetUpdate = Body(...)):
     logger.debug(f"Updating Asset {id}")
     asset = {k: v for k, v in asset.model_dump().items() if v is not None}
+    asset = jsonable_encoder(asset)
+    ## Add Timestamp ##
+    asset['modified'] = str(datetime.now())
+
     if len(asset) >= 1:
         update_result = request.app.database[databaseName].update_one(
             {"_id": id}, {"$set": asset}
         )
-
+        print(update_result)
         if update_result.modified_count == 0:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail=f"Asset with ID: {id} not found")

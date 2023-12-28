@@ -34,6 +34,7 @@ config = dotenv_values(".env")
 
 ### Set up Mongo ###
 dbUri = f"mongodb://{config['DB_USER']}:{config['DB_PASS']}@{config['DB_SERVER']}/{config['DB_NAME']}?retryWrites=true&w=majority&authSource={config['DB_NAME']}"
+print(dbUri)
 invName = config["INSTANCE_NAME"]
 
 ### Perform Startup Functions ###
@@ -68,7 +69,7 @@ async def root(request: Request):
     return templates.TemplateResponse("home.html", {"request": request, "instance_name": invName})
 
 
-@app.get("/list")
+@app.get("/items")
 async def list_records(request: Request):
     assets = api.list_assets(request)
     # for i in assets:
@@ -76,11 +77,19 @@ async def list_records(request: Request):
     return templates.TemplateResponse("items.html", {"request": request, "assets": assets})
 
 
-@app.get("/item/{id}")
-async def get_record(request: Request, id: str):
-    asset = api.find_asset(request=request, id=id)
-    logger.debug(asset)
-    return templates.TemplateResponse("item.html", {"request": request, "asset": asset})
+@app.get("/search/{field}/{value}")
+async def list_records(value: str, field: str, request: Request):
+    assets = api.search_assets(request=request, field=field, value=value)
+    # for i in assets:
+    #     print(i)
+    return templates.TemplateResponse("items.html", {"request": request, "assets": assets})
+
+
+# @app.get("/item/{id}")
+# async def get_record(request: Request, id: str):
+#     asset = api.find_asset(request=request, id=id)
+#     logger.debug(asset)
+#     return templates.TemplateResponse("item.html", {"request": request, "asset": asset})
 
 
 @app.get("/edit/{id}")

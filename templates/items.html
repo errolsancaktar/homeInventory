@@ -20,16 +20,28 @@
         <table class="table">
             <tr>
                 <th>Asset Name</th>
-                <th></th>
+                <th>Room</th>
+                <th>Model</th>
+                <th>Owner</th>
             </tr>
             {% for asset in assets %}
             <tr>
                 <td>
-                    {{ asset.name }}
-                <td>
-                    <a href=/item/{{ asset._id }} class="btn btn-primary">View</a>
-                    <a href=/edit/{{ asset._id }} class="btn btn-danger">Edit</a>
+                    <a href=/edit/{{ asset._id }}
+                        class="link-light link-underline-opacity-0 link-underline-opacity-75-hover">{{
+                        asset.name }}</a>
                 </td>
+                <td>
+                    {{ asset.specific_location }}
+                </td>
+                <td>
+                    {{ asset.model }}
+                </td>
+                <td>
+                    {{ asset.owner }}
+                </td>
+                <td>
+                    <a href=/edit/{{ asset._id }} class="btn btn-danger">Edit</a>
                 </td>
             </tr>
             {% endfor %}
