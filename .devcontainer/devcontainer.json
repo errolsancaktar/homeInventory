@@ -8,7 +8,11 @@
 		"ghcr.io/guiyomh/features/vim:0": {},
 		"ghcr.io/devcontainers/features/common-utils": {}
 	
-	}
+	},
+	"mounts": [
+		// "type=bind,source=${localWorkspaceFolder},target=/work",
+		"type=bind,source=/Users/${localEnv:USER}/.ssh,target=/Users/${localEnv:USER}/.ssh,readonly"
+	  ]
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
