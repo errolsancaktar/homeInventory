@@ -1,4 +1,4 @@
-pymongopymongo~=4.6.1
+pymongo~=4.6.1
 fastapi~=0.105.0
 Flask~=3.0.0
 uvicorn~=0.25.0
